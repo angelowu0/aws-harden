@@ -1,0 +1,25 @@
+services:
+  flask:
+    build: .
+    env_file:
+      - .env
+    restart: unless-stopped
+    expose:
+      - "5000"
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: "${AWS_REGION}"
+        awslogs-group: "/harbour-books/flask-app"
+        awslogs-create-group: "true"
+        awslogs-stream: "flask"
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - flask
+    restart: unless-stopped
